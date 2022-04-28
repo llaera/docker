@@ -1,0 +1,18 @@
+THINGS TO CHANGE IN /opt/containers/nextcloud/app/config/config.php with sudo nano /opt/containers/nextcloud/app/config/config.php
+
+1. FIND THE LINE 'overwrite.cli.url' AND CHANGE IT LIKE THIS:
+
+before:
+ 'overwrite.cli.url' => 'http://nextcloud.example.com',
+after:
+ 'overwrite.cli.url' => 'https://nextcloud.example.com',
+
+2. ADD THOSE LINES, REPLACE THE IP 172.18.0.2/16 BY YOUR IP THAT FOUND BY DOING docker inspect traefik. FOR THE PHONE REGION CHECK https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes:
+
+  'trusted_proxies' =>
+  array (
+    0 => '172.18.0.2/16',
+  ),
+ 'overwriteprotocol' => 'https',
+  'overwritehost' => 'nextcloud.example.com',
+ 'default_phone_region' => 'LU',
