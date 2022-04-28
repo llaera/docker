@@ -18,3 +18,5 @@ chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
 sudo apt-get install docker-compose -y
 docker compose version
 docker-compose --version
+echo "You need to reload your session, otherwise docker could incounter errors, please login again over ssh or local."
+exit
