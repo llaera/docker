@@ -15,7 +15,7 @@ echo "Creating directories in /opt/containers/traefik & /opt/containers/traefik/
 sudo mkdir -p /opt/containers/traefik
 sudo mkdir -p /opt/containers/traefik/data
 echo
-echo "Downloading configuration templates from github.com/llaera/docker ..."
+echo "Downloading configuration templates from github.com/llaera/docker/main/traefik/ ..."
 sudo wget -q -L -O /opt/containers/traefik/data/traefik.yml https://raw.githubusercontent.com/llaera/docker/main/traefik/traefik.yml
 sudo wget -q -L -O /opt/containers/traefik/docker-compose.yml https://raw.githubusercontent.com/llaera/docker/main/traefik/docker-compose.yml
 sudo wget -q -L -O /opt/containers/traefik/data/dynamic_conf.yml https://raw.githubusercontent.com/llaera/docker/main/traefik/dynamic_conf.yml
