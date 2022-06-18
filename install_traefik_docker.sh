@@ -1,6 +1,6 @@
 #!/bin/bash
 #AUTHOR=Loris Laera
-#Automatic traefik docker installer, docker & docker-compose needed.
+#Automatic traefik docker installer, docker & docker compose needed.
 #https://github.com/llaera/docker
 echo "Running sudo apt-get -qq update / Looking for system updates..."
 sudo apt-get -qq update
@@ -58,9 +58,9 @@ echo
 while true; do
     read -p "Do you wish to initialise traefik? Type Y for Yes an N for No! " yn
     case $yn in
-        [Yy]* ) docker-compose -f /opt/containers/traefik/docker-compose.yml up -d; break;;
+        [Yy]* ) docker compose -f /opt/containers/traefik/docker-compose.yml up -d; break;;
         [Nn]* ) exit;;
-        * ) echo "Please answer y or n. You can start it later with docker-compose -f /opt/containers/traefik/docker-compose.yml up -d";;
+        * ) echo "Please answer y or n. You can start it later with docker compose -f /opt/containers/traefik/docker-compose.yml up -d";;
     esac
 done
-echo "Made by Loris Laera - github.com/llaera/docker"
+echo "github.com/llaera/docker"

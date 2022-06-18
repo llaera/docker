@@ -10,19 +10,16 @@ services:
       - /etc/timezone:/etc/timezone:ro
       - /opt/containers/nextcloud/database:/var/lib/mysql
     environment:
-      - MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
-      - MYSQL_PASSWORD_FILE: /run/secrets/db_password
-      - MYSQL_DATABASE: /run/secrets/db_database
-      - MYSQL_USER: /run/secrets/db_user
-      - MYSQL_INITDB_SKIP_TZINFO: 1
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+      MYSQL_PASSWORD_FILE: /run/secrets/db_password
+      MYSQL_DATABASE: DBNAME
+      MYSQL_USER: USERNAME
+      MYSQL_INITDB_SKIP_TZINFO: 1
     networks:
       - default
     secrets:
        - db_root_password
        - db_password
-       - db_user
-       - db_database
-
   nextcloud-redis:
     image: redis:alpine
     container_name: nextcloud-redis
@@ -30,11 +27,10 @@ services:
     networks:
         - default
     restart: unless-stopped
-    command: redis-server --requirepass REPLACE_ME # REPLACE THIS PLEASE WITH A SECURE PASSWORD FROM https://passwordsgenerator.net/.
+    command: redis-server --requirepass REPLACEme # PUT STRONG PASSWORD
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
-
   nextcloud-app:
     image: nextcloud:latest
     container_name: nextcloud-app
@@ -42,9 +38,10 @@ services:
     depends_on:
       - nextcloud-db
       - nextcloud-redis
+      - collabora
     environment:
         REDIS_HOST: nextcloud-redis
-        REDIS_HOST_PASSWORD: REPLACE_ME # PUT THE SAME PASSWORD AS ABOVE
+        REDIS_HOST_PASSWORD: REPLACEme # PUT THE SAME PASSWORD AS ABOVE
     volumes:
       - /opt/containers/nextcloud/app:/var/www/html
       - /opt/containers/nextcloud/data:/var/www/html/data
@@ -53,11 +50,11 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.nextcloud-app.entrypoints=http"
-      - "traefik.http.routers.nextcloud-app.rule=Host(`nextcloud.example.com`)"
+      - "traefik.http.routers.nextcloud-app.rule=Host(`cloud.YOURDOMAIN.COM')"
       - "traefik.http.middlewares.nextcloud-app-https-redirect.redirectscheme.scheme=https"
       - "traefik.http.routers.nextcloud-app.middlewares=nextcloud-app-https-redirect"
       - "traefik.http.routers.nextcloud-app-secure.entrypoints=https"
-      - "traefik.http.routers.nextcloud-app-secure.rule=Host(`nextcloud.example.com`)"
+      - "traefik.http.routers.nextcloud-app-secure.rule=Host(`cloud.YOURDOMAIN.COM`)"
       - "traefik.http.routers.nextcloud-app-secure.tls=true"
       - "traefik.http.routers.nextcloud-app-secure.tls.certresolver=http"
       - "traefik.http.routers.nextcloud-app-secure.service=nextcloud-app"
@@ -69,15 +66,41 @@ services:
     networks:
       - proxy
       - default
+  collabora:
+    image: collabora/code
+    container_name: collabora_app
+    networks:
+      - proxy
+      - default
+    cap_add:
+      - MKNOD
+    expose:
+      - 9980
+    environment:
+      - domain=YOURNEXTCLOUDDOMAIN
+      - username=REPLACEwithUSERNAME
+      - password=REPLACEwithPASSWORD
+      - "extra_params=--o:ssl.enable=false --o:ssl.termination=true"
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.collabora.entrypoints=http"
+      - "traefik.http.routers.collabora.rule=Host(`collabora.YOURDOMAIN.COM`)"
+      - "traefik.http.middlewares.collabora-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.collabora.middlewares=collabora-https-redirect"
+      - "traefik.http.routers.collabora-secure.entrypoints=https"
+      - "traefik.http.routers.collabora-secure.rule=Host(`collabora.YOURDOMAIN.COM`)"
+      - "traefik.http.routers.collabora-secure.tls=true"
+      - "traefik.http.routers.collabora-secure.tls.certresolver=http"
+      - "traefik.http.routers.collabora-secure.service=collabora"
+      - "traefik.http.services.collabora.loadbalancer.server.port=9980"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.collabora-secure.middlewares=secHeaders@file"
 networks:
   proxy:
     external: true
 secrets:
-  db_root_password
+  db_root_password:
     file: /opt/containers/nextcloud/.pwd/db_root_password.txt
-  db_password
+  db_password:
     file: /opt/containers/nextcloud/.pwd/db_password.txt
-  db_user
-    file: /opt/containers/nextcloud/.pwd/db_user.txt
-  db_database
-    file: /opt/containers/nextcloud/.pwd/db_database.txt

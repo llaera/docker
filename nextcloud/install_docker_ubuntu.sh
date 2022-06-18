@@ -17,5 +17,4 @@ sudo groupadd docker
 sudo usermod -aG docker $USER
 echo "Verifiy install with 'docker compose version'"
 newgrp docker
-echo "github.com/llaera/docker"
 exit

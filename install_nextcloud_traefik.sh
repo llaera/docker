@@ -5,6 +5,8 @@
 echo "Creating directory in /opt/containers/nextcloud ..."
 sudo mkdir -p /opt/containers/nextcloud/{database,app,data}
 sudo mkdir -p /opt/containers/nextcloud/.pwd
+echo "Installing wget / Needed for downloading files."
+sudo apt-get -qq install wget -y
 echo "Downloading docker-compose.yml from github.com/llaera/docker/main/nextcloud/docker-compose.yml ..."
 sudo wget -q -L -O /opt/containers/nextcloud/docker-compose.yml https://raw.githubusercontent.com/llaera/docker/main/nextcloud/docker-compose.yml
 sudo wget -q -L -O /opt/containers/nextcloud/nextcloud_additional-config.txt https://raw.githubusercontent.com/llaera/docker/main/nextcloud/nextcloud_additional-config.txt
