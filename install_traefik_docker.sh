@@ -2,65 +2,50 @@
 #AUTHOR=Loris Laera
 #Automatic traefik docker installer, docker & docker compose needed.
 #https://github.com/llaera/docker
-echo "Running sudo apt-get -qq update / Looking for system updates..."
+BIGreen='\033[1;92m'
+On_IPurple='\033[0;105m'
+NC='\033[0m'
+echo -e "${BIGreen}Running sudo apt-get -qq update / Updating repository...${NC}"
 sudo apt-get -qq update
 echo
-echo "Running sudo apt-get -qq upgrade -y / Installing system updates..."
-sudo apt-get -qq upgrade -y
-echo
-echo "Installing apache2-utils & wget / Needed for user,password hash and downloading files."
+echo -e "${BIGreen}Installing apache2-utils & wget / Needed for user,password hash and downloading files.${NC}"
 sudo apt-get -qq install apache2-utils wget -y
 echo
-echo "Creating directories in /opt/containers/traefik & /opt/containers/traefik/data / This stores all your configuration files as SSL keys."
+echo -e "${BIGreen}Creating directories in /opt/containers/traefik & /opt/containers/traefik/data / This stores all your configuration files as SSL keys.${NC}"
 sudo mkdir -p /opt/containers/traefik
 sudo mkdir -p /opt/containers/traefik/data
 echo
-echo "Downloading configuration templates from github.com/llaera/docker/main/traefik/ ..."
+echo -e "${BIGreen}Downloading configuration templates from github.com/llaera/docker/main/traefik/${NC}"
 sudo wget -q -L -O /opt/containers/traefik/data/traefik.yml https://raw.githubusercontent.com/llaera/docker/main/traefik/traefik.yml
 sudo wget -q -L -O /opt/containers/traefik/docker-compose.yml https://raw.githubusercontent.com/llaera/docker/main/traefik/docker-compose.yml
 sudo wget -q -L -O /opt/containers/traefik/data/dynamic_conf.yml https://raw.githubusercontent.com/llaera/docker/main/traefik/dynamic_conf.yml
 echo
-echo "Creating file for SSL keys storage & change of permissions to 600."
+echo -e "${BIGreen}Creating file for SSL keys storage & change of permissions to 600.${NC}"
 sudo touch /opt/containers/traefik/data/acme.json
 sudo chmod 600 /opt/containers/traefik/data/acme.json
 echo
-echo "Creating docker network proxy:"
+echo -e "${BIGreen}Creating docker network proxy:${NC}"
 docker network create proxy
 echo
-echo
-echo "User Configuration and Setup:"
-echo "Select your traefik username:"
+echo -e "${BIGreen}${On_IPurple}Select your traefik username:${NC}"
 read user
-echo "Type in a password for your traefik account:" 
+echo -e "${BIGreen}${On_IPurple}Type in a password for your traefik account:${NC}" 
 read password
-echo
-echo "Copy the next line:"
-sleep 3
-echo $(htpasswd -nb $user $password) | sed -e s/\\$/\\$\\$/g
-echo
-sleep 3
-echo "A text editor will soon open soon, you can only use the keyboard to navigate, replace USER:PASSWORD in line 24 of your docker-compose.yml with what you copied earlier, use a simple paste."
-sleep 3
-echo "You will also need to change the url in line 23 & 28, from traefik.example.com to traefik.yourdomain.com, using your domain or course."
-sleep 15
-echo
-echo "The editor will open in 3 seconds."
-sleep 3
-sudo nano /opt/containers/traefik/docker-compose.yml
-echo
-echo "Don't forget to replace example@example.com with your E-Mail in traefik.yml."
-sleep 10
-echo "The editor will open in 2 seconds."
-sleep 2
-sudo nano /opt/containers/traefik/data/traefik.yml
-echo
+sudo sed -i "s|USER:PASSWORD|$(htpasswd -nb $user $password)|g" /opt/containers/traefik/docker-compose.yml
+echo -e "${BIGreen}${On_IPurple}Type in your traefik URL! Usually if your domain is example.com you would use traefik.example.com, but it is up to you. Do not forget to add the subdomain in your DNS records or enable wildcard DNS record.${NC}"
+read url
+sudo sed -i "s|traefik.YOURDOMAIN.COM|$url|g" /opt/containers/traefik/docker-compose.yml
+echo -e "${BIGreen}${On_IPurple}Please type in a valid E-Mail for Let's Encrypt, this information is mandatory:${NC}"
+read email
+echo -e "${BIGreen}${On_IPurple}Don't forget to replace example@example.com with your E-Mail in traefik.yml.${NC}"
+sudo sed -i "s|example@mail.com|$email|g" /opt/containers/traefik/data/traefik.yml
 echo
 while true; do
     read -p "Do you wish to initialise traefik? Type Y for Yes an N for No! " yn
     case $yn in
         [Yy]* ) docker compose -f /opt/containers/traefik/docker-compose.yml up -d; break;;
         [Nn]* ) exit;;
-        * ) echo "Please answer y or n. You can start it later with docker compose -f /opt/containers/traefik/docker-compose.yml up -d";;
+        * ) echo -e "${BIGreen}Please answer y or n. You can start it later with docker compose -f /opt/containers/traefik/docker-compose.yml up -d${NC}";;
     esac
 done
-echo "github.com/llaera/docker"
+echo -e "${BIGreen}github.com/llaera/docker${NC}"

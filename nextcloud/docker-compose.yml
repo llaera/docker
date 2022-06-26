@@ -27,7 +27,7 @@ services:
     networks:
         - default
     restart: unless-stopped
-    command: redis-server --requirepass REPLACEme # PUT STRONG PASSWORD
+    command: redis-server --requirepass RedisPASS # PUT STRONG PASSWORD
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
@@ -38,10 +38,9 @@ services:
     depends_on:
       - nextcloud-db
       - nextcloud-redis
-      - collabora
     environment:
         REDIS_HOST: nextcloud-redis
-        REDIS_HOST_PASSWORD: REPLACEme # PUT THE SAME PASSWORD AS ABOVE
+        REDIS_HOST_PASSWORD: RedisPASS # PUT THE SAME PASSWORD AS ABOVE
     volumes:
       - /opt/containers/nextcloud/app:/var/www/html
       - /opt/containers/nextcloud/data:/var/www/html/data
@@ -77,9 +76,9 @@ services:
     expose:
       - 9980
     environment:
-      - domain=YOURNEXTCLOUDDOMAIN
-      - username=REPLACEwithUSERNAME
-      - password=REPLACEwithPASSWORD
+      - domain=cloud.YOURDOMAIN.COM
+      - username=COLLUSERNAME
+      - password=COLLPASSWORD
       - "extra_params=--o:ssl.enable=false --o:ssl.termination=true"
     restart: unless-stopped
     labels:
